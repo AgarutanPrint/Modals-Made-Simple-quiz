@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modals Made Simple Quiz</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f7ff;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:16px}
+.card{background:#fff;border-radius:20px;box-shadow:0 4px 24px rgba(40,100,200,0.13);max-width:480px;width:100%;padding:24px 20px 22px;margin:auto}
+
+/* MENU */
+.shop-name{text-align:center;font-size:.78rem;font-weight:700;color:#888;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+h1{font-size:1.3rem;color:#1a3a8f;text-align:center;margin-bottom:2px}
+.subtitle{text-align:center;color:#5575cc;font-size:.88rem;margin-bottom:18px}
+.menu-btn{display:block;width:100%;margin:8px 0;padding:13px 12px;border:none;border-radius:14px;font-size:.97rem;font-weight:700;cursor:pointer;transition:transform .12s,box-shadow .12s;text-align:left}
+.menu-btn:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(40,100,200,.18)}
+.section-label{font-size:.77rem;opacity:.85;font-weight:400;display:block;margin-top:2px}
+.btn-c1{background:linear-gradient(135deg,#7c6ef5,#5b8df5);color:#fff}
+.btn-c2{background:linear-gradient(135deg,#f5a623,#f07b23);color:#fff}
+.btn-c3{background:linear-gradient(135deg,#e85a8a,#c0397a);color:#fff}
+.btn-c4{background:linear-gradient(135deg,#23b5a8,#1e8fa5);color:#fff}
+.btn-c5{background:linear-gradient(135deg,#4caf7d,#2e9e5e);color:#fff}
+.btn-c6{background:linear-gradient(135deg,#c05a23,#e08030);color:#fff}
+.btn-c7{background:linear-gradient(135deg,#9c3ace,#c066dd);color:#fff}
+.btn-mastery{background:linear-gradient(135deg,#1a3a8f,#4466cc);color:#fff}
+
+/* QUIZ */
+.quiz-screen,.end-screen{display:none}
+.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.quiz-title{font-size:1rem;font-weight:700;color:#1a3a8f}
+.exit-btn{background:#eef2ff;color:#1a3a8f;border:none;border-radius:10px;padding:6px 14px;font-size:.87rem;font-weight:600;cursor:pointer}
+.exit-btn:hover{background:#dde5ff}
+.stats-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.stat-pill{flex:1;min-width:60px;background:#f4f6ff;border-radius:10px;padding:5px 5px 4px;text-align:center;font-size:.76rem;color:#555}
+.stat-pill span{display:block;font-size:1.02rem;font-weight:700;color:#1a3a8f}
+.progress-bar-wrap{background:#e5eaff;border-radius:8px;height:7px;margin-bottom:12px;overflow:hidden}
+.progress-bar{background:linear-gradient(90deg,#7c6ef5,#5b8df5);height:100%;border-radius:8px;transition:width .35s}
+.q-counter{font-size:.8rem;color:#888;text-align:right;margin-bottom:7px}
+.question-text{font-size:1rem;font-weight:600;color:#222;margin-bottom:14px;line-height:1.45}
+.options{display:flex;flex-direction:column;gap:9px}
+.opt-btn{background:#f5f4ff;border:2px solid #d6d0ff;border-radius:12px;padding:11px 13px;text-align:left;font-size:.95rem;cursor:pointer;transition:background .14s,border-color .14s;color:#333}
+.opt-btn:hover:not(:disabled){background:#eae6ff;border-color:#a89cf5}
+.opt-btn.correct{background:#d4f7e8;border-color:#2ecc71;color:#156e3e;font-weight:700}
+.opt-btn.wrong{background:#fde8ee;border-color:#e74c6c;color:#8b1c33}
+.opt-btn:disabled{cursor:default}
+.hint-row{display:flex;gap:8px;margin-top:11px;align-items:center}
+.hint-btn{background:#fff8e1;border:2px solid #f5a623;color:#b8760a;border-radius:10px;padding:6px 13px;font-size:.86rem;font-weight:600;cursor:pointer}
+.hint-btn:hover:not(:disabled){background:#fff0c0}
+.hint-btn:disabled{opacity:.5;cursor:default}
+.hint-text{font-size:.86rem;color:#8a6200;background:#fff8e1;border-radius:8px;padding:6px 10px;margin-top:5px;display:none}
+.feedback{margin-top:12px;padding:9px 13px;border-radius:10px;font-size:.91rem;font-weight:600;min-height:32px}
+.feedback.correct{background:#d4f7e8;color:#156e3e}
+.feedback.wrong{background:#fde8ee;color:#8b1c33}
+.next-btn{margin-top:14px;width:100%;padding:12px;background:linear-gradient(135deg,#7c6ef5,#5b8df5);color:#fff;border:none;border-radius:12px;font-size:.97rem;font-weight:700;cursor:pointer;display:none}
+.next-btn:hover{opacity:.9}
+
+/* END */
+.end-screen{text-align:center}
+.end-icon{font-size:2.8rem;margin-bottom:6px}
+.stars-row{display:flex;justify-content:center;gap:6px;margin-bottom:14px;min-height:34px}
+.star{font-size:1.9rem;opacity:0;transform:scale(.4);transition:opacity .3s,transform .3s}
+.star.pop{opacity:1;transform:scale(1)}
+.end-title{font-size:1.25rem;font-weight:800;color:#1a3a8f;margin-bottom:3px}
+.end-subtitle{font-size:.92rem;color:#5575cc;margin-bottom:16px}
+.end-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.end-pill{background:#eef2ff;border-radius:12px;padding:9px 13px;font-size:.86rem;color:#1a3a8f;font-weight:600;min-width:76px}
+.end-pill span{display:block;font-size:1.15rem;font-weight:800}
+.end-btns{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
+.end-btn{padding:10px 18px;border:none;border-radius:12px;font-size:.93rem;font-weight:700;cursor:pointer}
+.end-btn.again{background:linear-gradient(135deg,#7c6ef5,#5b8df5);color:#fff}
+.end-btn.menu{background:#eef2ff;color:#1a3a8f}
+.review-box{background:#f8f7ff;border-radius:14px;padding:14px;text-align:left}
+.review-box h3{font-size:.95rem;color:#1a3a8f;margin-bottom:10px;text-align:center}
+.review-links{display:flex;flex-direction:column;gap:8px}
+.review-link{display:block;padding:10px 14px;border-radius:10px;font-size:.9rem;font-weight:700;text-align:center;text-decoration:none;transition:opacity .15s}
+.review-link:hover{opacity:.85}
+.etsy-link{background:#F1641E;color:#fff}
+.amazon-link{background:#FF9900;color:#111}
+</style>
+</head>
+<body>
+<div class="card">
+
+<!-- MENU -->
+<div id="menuScreen">
+  <div class="shop-name">Agarutan Print</div>
+  <h1>📘 Modals Made Simple</h1>
+  <p class="subtitle">Middle School — Choose a section!</p>
+  <button class="menu-btn btn-c1" onclick="startQuiz('ch1')">
+    Chapter 1: Modals of Ability
+    <span class="section-label">Can / Could — present & past ability</span>
+  </button>
+  <button class="menu-btn btn-c2" onclick="startQuiz('ch2')">
+    Chapter 2: Possibility & Probability
+    <span class="section-label">May / Might / Could</span>
+  </button>
+  <button class="menu-btn btn-c3" onclick="startQuiz('ch3')">
+    Chapter 3: Necessity & Obligation
+    <span class="section-label">Must / Have to / Need to</span>
+  </button>
+  <button class="menu-btn btn-c4" onclick="startQuiz('ch4')">
+    Chapter 4: Permission & Prohibition
+    <span class="section-label">May / Can / Must not</span>
+  </button>
+  <button class="menu-btn btn-c5" onclick="startQuiz('ch5')">
+    Chapter 5: Advice & Suggestions
+    <span class="section-label">Should / Ought to / Had better</span>
+  </button>
+  <button class="menu-btn btn-c6" onclick="startQuiz('ch6')">
+    Chapter 6: Deduction & Certainty
+    <span class="section-label">Must / Can't</span>
+  </button>
+  <button class="menu-btn btn-c7" onclick="startQuiz('ch7')">
+    Chapter 7: Politeness & Requests
+    <span class="section-label">Could / Would / May</span>
+  </button>
+  <button class="menu-btn btn-mastery" onclick="startQuiz('mastery')">
+    🏆 Mastery Test — All Chapters!
+    <span class="section-label">Every modal type combined</span>
+  </button>
+</div>
+
+<!-- QUIZ -->
+<div class="quiz-screen" id="quizScreen">
+  <div class="quiz-header">
+    <div class="quiz-title" id="quizTitle"></div>
+    <button class="exit-btn" onclick="goMenu()">✕ Exit</button>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-pill">⭐ Points<span id="statPoints">0</span></div>
+    <div class="stat-pill">✅ Correct<span id="statCorrect">0</span></div>
+    <div class="stat-pill">❌ Wrong<span id="statWrong">0</span></div>
+    <div class="stat-pill">🎯 Score<span id="statScore">0%</span></div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="q-counter" id="qCounter"></div>
+  <div class="question-text" id="questionText"></div>
+  <div class="options" id="optionsDiv"></div>
+  <div class="hint-row">
+    <button class="hint-btn" id="hintBtn" onclick="showHint()">💡 Hint (−5 pts)</button>
+  </div>
+  <div class="hint-text" id="hintText"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+</div>
+
+<!-- END -->
+<div class="end-screen" id="endScreen">
+  <div class="end-icon" id="endIcon"></div>
+  <div class="stars-row" id="starsRow"></div>
+  <div class="end-title" id="endTitle"></div>
+  <div class="end-subtitle" id="endSubtitle"></div>
+  <div class="end-pills">
+    <div class="end-pill">⭐ Points<span id="endPoints"></span></div>
+    <div class="end-pill">✅ Correct<span id="endCorrect"></span></div>
+    <div class="end-pill">❌ Wrong<span id="endWrong"></span></div>
+    <div class="end-pill">🎯 Score<span id="endScore"></span></div>
+  </div>
+  <div class="end-btns">
+    <button class="end-btn again" onclick="restartQuiz()">🔄 Try Again</button>
+    <button class="end-btn menu" onclick="goMenu()">🏠 Menu</button>
+  </div>
+  <div class="review-box" id="reviewBox" style="display:none"></div>
+</div>
+
+</div>
+
+<script>
+// ─── QUESTION BANKS ──────────────────────────────────────────────────────────
+
+const allQuestions = {
+
+ch1: [
+  {q:"Which modal expresses PRESENT ability?", opts:["Could","Would","Can","Might"], ans:2, hint:"'Can' = what you are able to do right now."},
+  {q:"Which modal expresses PAST ability?", opts:["Can","Must","Could","Should"], ans:2, hint:"'Could' = what you were able to do in the past."},
+  {q:"She _____ speak French fluently. (She has this ability now.)", opts:["could","must","can","might"], ans:2, hint:"Present ability → use 'can'."},
+  {q:"When I was five, I _____ swim across the pool.", opts:["can","must","will","could"], ans:3, hint:"Past ability → use 'could'."},
+  {q:"Which sentence is CORRECT?", opts:["I can to swim.","I can swim.","I cans swim.","I could to swim."], ans:1, hint:"Never add 'to' after a modal verb!"},
+  {q:"Which sentence shows PAST ability?", opts:["She can sing well.","She could sing well as a child.","She must sing well.","She may sing well."], ans:1, hint:"'Could' + past time reference = past ability."},
+  {q:"He _____ climb trees very quickly when he was a child.", opts:["can","must","could","should"], ans:2, hint:"Talking about the past → 'could'."},
+  {q:"_____ you help me with my homework? (polite, asking now)", opts:["Could","Must","Should","Need to"], ans:0, hint:"'Could' is also used for polite requests."},
+  {q:"Which sentence is INCORRECT?", opts:["I could run faster when I was younger.","Can you solve this math problem?","I can to swim.","She could play piano at age five."], ans:2, hint:"Never use 'to' directly after a modal like 'can'."},
+  {q:"To make 'She can swim' NEGATIVE, you say:", opts:["She not can swim.","She cannot swim.","She can't to swim.","She cans not swim."], ans:1, hint:"Add 'not' after the modal: can + not = cannot / can't."},
+  {q:"To turn 'He can drive' into a QUESTION, you say:", opts:["He can drive?","Does he can drive?","Can he drive?","Is he can drive?"], ans:2, hint:"Move the modal to the front: Can + subject + base verb."},
+  {q:"Sarah _____ speak 3 languages fluently; she is truly impressive.", opts:["could","must","can","might"], ans:2, hint:"She has this ability right now → 'can'."},
+  {q:"'Could you climb trees when you were a kid?' — What is this asking about?", opts:["A present ability","A rule","A past ability","A possibility"], ans:2, hint:"'Could' + past time = past ability question."},
+  {q:"Tom _____ play the piano very well, but he hasn't practiced in years.", opts:["can","must","could","should"], ans:2, hint:"He had this ability in the past → 'could'."},
+  {q:"What is the sentence structure for ability modals?", opts:["Subject + can/could + to + base verb","Subject + can/could + base verb","Subject + base verb + can/could","Can/could + to + base verb + subject"], ans:1, hint:"Modal verbs are followed directly by the base verb — no 'to'!"}
+],
+
+ch2: [
+  {q:"Which modal expresses the STRONGEST possibility (50% or more)?", opts:["Might","Could","May","Must"], ans:2, hint:"'May' = strong possibility, more formal than 'might'."},
+  {q:"Which modal suggests the WEAKEST possibility (less than 50%)?", opts:["May","Must","Might","Can"], ans:2, hint:"'Might' implies lower probability than 'may'."},
+  {q:"It _____ rain tomorrow. (I'm not very sure — small chance.)", opts:["must","can","might","will"], ans:2, hint:"Small chance of something happening → 'might'."},
+  {q:"She _____ be at the library. (It's possible she's there, I'm fairly sure.)", opts:["must","might","may","should"], ans:2, hint:"'May' suggests a fairly strong possibility."},
+  {q:"This _____ be a great opportunity. (It's theoretically possible.)", opts:["must","could","should","will"], ans:1, hint:"'Could' is used for theoretical or hypothetical possibilities."},
+  {q:"Which sentence is CORRECT for past possibility?", opts:["She may have gone to the store yesterday.","She might have gone to the store yesterday.","She must have gone to the store yesterday.","She could have gone to the store yesterday."], ans:1, hint:"'Might have' is best for past possibility; avoid 'may have' for past."},
+  {q:"To make 'It may rain' NEGATIVE, you say:", opts:["It may not rain.","It mays not rain.","It not may rain.","It mayn't rain."], ans:0, hint:"Add 'not' after the modal: may + not = may not."},
+  {q:"'Might he be at home now?' — Turn this into a SHORT ANSWER (he's probably there).", opts:["Yes, he might.","Yes, he mights.","Yes, might he.","Yes, he may."], ans:0, hint:"Short answer: Yes, + subject + modal."},
+  {q:"The keys _____ be in your bag; have you checked? (It's possible.)", opts:["must","could","should","will"], ans:1, hint:"Theoretical possibility → 'could'."},
+  {q:"She _____ not like the movie, but we can ask her. (Low chance she won't.)", opts:["may","must","will","can"], ans:0, hint:"Low possibility → 'might' or 'may'."},
+  {q:"Which is MOST FORMAL for expressing possibility?", opts:["Could","Might","May","Can"], ans:2, hint:"'May' is the most formal of the three possibility modals."},
+  {q:"'Could' for possibility is used in _____ situations.", opts:["formal written only","past only","hypothetical or informal","prohibition"], ans:2, hint:"'Could' suggests hypothetical or informal possibilities."},
+  {q:"The train _____ be delayed due to bad weather. (It's a possibility.)", opts:["will","must","may","should"], ans:2, hint:"Possible future event → 'may', 'might', or 'could'."},
+  {q:"He _____ buy a new car this year. (Small chance, he's thinking about it.)", opts:["must","should","might","will"], ans:2, hint:"Uncertain future possibility → 'might'."},
+  {q:"Which sentence correctly expresses possibility?", opts:["She must be at home; it's certain.","It might snow tonight; there's a small chance.","You should eat more vegetables.","He can drive very fast."], ans:1, hint:"'Might' = small chance of something happening."}
+],
+
+ch3: [
+  {q:"Which modal expresses STRONG necessity from the speaker's own authority?", opts:["Have to","Need to","Must","Should"], ans:2, hint:"'Must' = strong internal obligation or rule."},
+  {q:"Which modal expresses EXTERNAL obligation from outside rules?", opts:["Must","Have to","Need to","Should"], ans:1, hint:"'Have to' comes from outside circumstances or other people's rules."},
+  {q:"Which modal is the LEAST strong for expressing necessity?", opts:["Must","Have to","Need to","Ought to"], ans:2, hint:"'Need to' is less forceful — it expresses personal or practical necessity."},
+  {q:"You _____ wear a seatbelt while driving. (It's the law.)", opts:["should","need to","must","might"], ans:2, hint:"A law = strong obligation → 'must'."},
+  {q:"I _____ finish my homework because my teacher said so.", opts:["must","have to","need to","should"], ans:1, hint:"Someone else's rule = external obligation → 'have to'."},
+  {q:"We _____ buy some groceries today; the fridge is empty.", opts:["must","should","need to","could"], ans:2, hint:"Personal practical necessity → 'need to'."},
+  {q:"'Do you have to take an exam?' — Correct SHORT ANSWER (yes):", opts:["Yes, I must.","Yes, I do.","Yes, I have.","Yes, I need."], ans:1, hint:"'Have to' questions use do/does: Yes, I do."},
+  {q: "Complete the sentence: 'You _______ clean your room today because Mom already did it.'", opts:["must", "have to", "need to", "don't need to"], ans:3, hint:"Since the chore is already done, there is a lack of necessity, so we use 'don't need to'"},
+  {q:"Which sentence is INCORRECT?", opts:["You must wear a helmet.","I have to pay my bills.","We need to exercise.","You must to wear a helmet."], ans:3, hint:"Never add 'to' after 'must'! Must + base verb only."},
+  {q:"You _____ not smoke here. (It's strictly prohibited.)", opts:["need","have","must","should"], ans:2, hint:"Strong prohibition → 'must not'."},
+  {q:"I don't _____ wake up early on Sundays. (It's not necessary.)", opts:["must","need to","have to","should"], ans:2, hint:"'Don't have to' = not necessary (but not prohibited)."},
+  {q:"She _____ take her medicine every morning to stay healthy.", opts:["must","needs to","have to","could"], ans:1, hint:"Personal health necessity → 'needs to' (she/he/it → needs to)."},
+  {q:"Students _____ be quiet in the library. (It's a requirement.)", opts:["might","need","must","could"], ans:2, hint:"A rule or requirement → 'must'."},
+  {q:"What is the key difference between 'must not' and 'don't have to'?", opts:["They mean the same thing","Must not = prohibited; don't have to = not necessary","Don't have to = prohibited; must not = not necessary","Both mean it is necessary"], ans:1, hint:"'Must not' = you are NOT allowed. 'Don't have to' = it's not required."},
+  {q:"'Have to' changes form with the subject — which is CORRECT?", opts:["She have to study.","She has to study.","She haves to study.","She must to study."], ans:1, hint:"He/she/it → HAS to (not 'have to')."}
+],
+
+ch4: [
+  {q:"Which modal is used for FORMAL permission?", opts:["Can","Must not","May","Should"], ans:2, hint:"'May' is polite and formal for giving or asking permission."},
+  {q:"Which modal is used for INFORMAL permission?", opts:["May","Must","Can","Would"], ans:2, hint:"'Can' is used in everyday casual conversations for permission."},
+  {q:"Which modal expresses PROHIBITION (something not allowed)?", opts:["May","Can","Should","Must not"], ans:3, hint:"'Must not' (mustn't) = it is forbidden."},
+  {q:"_____ I leave early today? (Formal, polite request to teacher)", opts:["Can","Should","May","Could"], ans:2, hint:"Formal permission request → 'May'."},
+  {q:"You _____ smoke in this building. (Strictly prohibited.)", opts:["may not","should not","must not","need not"], ans:2, hint:"Strong prohibition → 'must not'."},
+  {q:"Employees _____ wear casual clothes on Fridays. (It's allowed.)", opts:["must","can","might","should"], ans:1, hint:"Giving permission informally → 'can'."},
+  {q:"Which sentence asks for permission MOST POLITELY?", opts:["Can I use your phone?","May I use your phone?","Should I use your phone?","Must I use your phone?"], ans:1, hint:"'May' is the most formal and polite way to ask permission."},
+  {q:"Visitors _____ enter the construction site. (Not permitted.)", opts:["may","should","can","must not"], ans:3, hint:"Something that is not permitted = 'must not'."},
+  {q:"'May we leave early?' — Correct SHORT ANSWER (yes):", opts:["Yes, you may.","Yes, you can.","Yes, you must.","Yes, you should."], ans:0, hint:"May question → short answer: Yes, you may."},
+  {q:"'Can I borrow your pen?' — Correct SHORT ANSWER (no):", opts:["No, you mustn't.","No, you may not.","No, you cannot.","No, you shouldn't."], ans:2, hint:"Can question → short answer: No, you cannot / can't."},
+  {q:"You _____ not enter the library without a student ID.", opts:["should","can","might","need"], ans:1, hint:"No permission → 'cannot' (can + not)."},
+  {q:"Students _____ talk during the exam. (Not allowed.)", opts:["may","can","should","must not"], ans:3, hint:"Prohibition in a rule → 'must not'."},
+  {q:"Note about 'may not' and 'cannot': they are used to show ___.", opts:["strong advice","past ability","no permission or prohibition","future possibility"], ans:2, hint:"Negative forms of permission modals = no permission."},
+  {q:"Which is a correct PROHIBITION sentence?", opts:["You must not park here.","You should not park here.","You might not park here.","You need not park here."], ans:0, hint:"'Must not' = it is forbidden, not just advice."},
+  {q:"Passengers _____ fasten their seatbelts during takeoff. (Mandatory rule.)", opts:["might","could","should","must"], ans:3, hint:"A mandatory safety rule → 'must'."}
+],
+
+ch5: [
+  {q:"Which modal gives GENERAL advice or a recommendation?", opts:["Must","Had better","Should","Can"], ans:2, hint:"'Should' = the most common modal for giving advice."},
+  {q:"Which modal gives STRONG advice with a moral duty?", opts:["Should","Ought to","Had better","Could"], ans:1, hint:"'Ought to' is more formal and expresses moral obligation."},
+  {q:"Which modal gives a STRONG WARNING (with consequences)?", opts:["Should","Ought to","Had better","Might"], ans:2, hint:"'Had better' implies something bad will happen if advice is ignored."},
+  {q:"You _____ see a doctor. (General advice — something is recommended.)", opts:["had better","must","might","should"], ans:3, hint:"Everyday recommendation → 'should'."},
+  {q:"We _____ respect our elders. (It's morally right.)", opts:["should","had better","ought to","must"], ans:2, hint:"Moral duty → 'ought to'."},
+  {q:"You _____ study for your test or you might fail! (Warning!)", opts:["should","ought to","had better","can"], ans:2, hint:"Strong warning with consequence → 'had better'."},
+  {q:"Which sentence correctly uses 'had better' in NEGATIVE form?", opts:["You had not better be late.","You had better not be late.","You hadn't to be late.","You better had not be late."], ans:1, hint:"Negative of 'had better': had better NOT + base verb."},
+  {q:"'Should we leave early?' — Correct SHORT ANSWER (yes):", opts:["Yes, we should.","Yes, we ought.","Yes, we had better.","Yes, we must."], ans:0, hint:"Should question → short answer: Yes, we should."},
+  {q:"'Ought he to apologize?' — Correct SHORT ANSWER (yes):", opts:["Yes, he should.","Yes, he ought to.","Yes, he had better.","Yes, he ought."], ans:1, hint:"Ought to question → short answer: Yes, he ought to."},
+  {q:"'Should' is _____ strong than 'must' or 'have to'.", opts:["more","equally","less","the same"], ans:2, hint:"'Should' suggests but doesn't force — it's softer than 'must'."},
+  {q:"He _____ stop smoking if he wants to improve his health.", opts:["ought to","must not","need not","could not"], ans:0, hint:"Strong health recommendation → 'should' or 'ought to'."},
+  {q:"Mistake: 'You ought to wear a seatbelt; it's the law.' — What should it be?", opts:["You should wear a seatbelt.","You must wear a seatbelt.","You had better wear a seatbelt.","You might wear a seatbelt."], ans:1, hint:"Laws = 'must', not 'ought to'."},
+  {q:"'Had better' is _____ and more urgent than 'should'.", opts:["less formal","weaker","stronger","the same"], ans:2, hint:"'Had better' carries a warning — stronger than 'should'."},
+  {q:"You _____ not stay up too late before an important exam. (Advice)", opts:["had better","ought to","should","must"], ans:2, hint:"Advice against doing something → 'should not'."},
+  {q:"Which sentence correctly expresses moral obligation?", opts:["You had better apologize.","You ought to help those in need.","You should leave now or miss the bus.","You might exercise more."], ans:1, hint:"Moral duty → 'ought to'."}
+],
+
+ch6: [
+  {q:"'Must' for deduction expresses certainty that something is ___.", opts:["impossible","not true","true","advice"], ans:2, hint:"'Must' (deduction) = I'm almost 100% certain this is true."},
+  {q:"'Can't' for deduction expresses certainty that something is ___.", opts:["true","possible","impossible or not true","good advice"], ans:2, hint:"'Can't' = I'm almost 100% certain this is NOT true."},
+  {q:"The lights are on. Someone _____ be home.", opts:["might","should","must","can't"], ans:2, hint:"Evidence suggests it's true → use 'must'."},
+  {q:"That _____ be true. I just saw the opposite happen!", opts:["must","should","can't","could"], ans:2, hint:"Strong certainty that it's NOT true → 'can't'."},
+  {q:"She _____ be tired. She's been studying all night.", opts:["might","can't","must","could"], ans:2, hint:"Strong certainty based on evidence → 'must'."},
+  {q:"He _____ be at home. I just saw him at the office downtown.", opts:["must","should","can't","might"], ans:2, hint:"Impossible based on evidence → 'can't'."},
+  {q:"'Must' for deduction means you are _____ percent certain.", opts:["50%","about 100%","25%","75%"], ans:1, hint:"Deduction 'must' = almost total certainty based on evidence."},
+  {q:"Is she at the library? (You're sure she is — she always studies there.)", opts:["She must be.","She can't be.","She might be.","She should be."], ans:0, hint:"Certain something is true → 'She must be.'"},
+  {q:"Is he the one who broke the window? (Impossible — he wasn't even home.)", opts:["He must be.","He might be.","He can't be.","He should be."], ans:2, hint:"Certain something is NOT true → 'He can't be.'"},
+  {q:"'Must' for deduction vs 'must' for obligation: what's the difference?", opts:["They are exactly the same","Deduction = logical conclusion; obligation = rule or duty","Obligation = conclusion; deduction = rule","There is no must for deduction"], ans:1, hint:"Context tells you which: evidence → deduction; rules → obligation."},
+  {q:"Your phone _____ be in your bag. You just put it there a minute ago.", opts:["can't","might","must","should"], ans:2, hint:"Near certainty based on recent evidence → 'must'."},
+  {q:"This _____ be his car. He drives a blue sedan, not a white SUV.", opts:["must","could","can't","might"], ans:2, hint:"The evidence makes it impossible → 'can't'."},
+  {q:"Which mistake should you avoid with deduction modals?", opts:["Using must for certainty","Using can't for impossibility","Using must or can't for future events","Providing evidence for your deduction"], ans:2, hint:"'Must/can't' are for present deductions. For future, use 'will/might/probably'."},
+  {q:"They _____ be on vacation. Their mail is piling up outside.", opts:["can't","should","ought to","must"], ans:3, hint:"Evidence supports a conclusion → 'must'."},
+  {q:"Which correctly uses a deduction modal?", opts:["She must wear a uniform at school.","He can't be at home — I just saw him leave.","You must study harder.","They can't smoke here."], ans:1, hint:"Deduction = logical conclusion based on evidence, not a rule."}
+],
+
+ch7: [
+  {q:"Which modal makes POLITE REQUESTS (neutral to polite)?", opts:["Can","Would","Could","Must"], ans:2, hint:"'Could' is softer and more polite than 'can'."},
+  {q:"Which modal is used for VERY POLITE or FORMAL requests?", opts:["Could","Can","Would","Should"], ans:2, hint:"'Would you mind...?' or 'Would you like...?' are very formal."},
+  {q:"Which modal is MOST FORMAL for asking permission in professional settings?", opts:["Can","Could","Should","May"], ans:3, hint:"'May' is the most formal — used in work, school, or with strangers."},
+  {q:"_____ you please help me with my homework? (Polite request)", opts:["Can","Must","Could","Should"], ans:2, hint:"Polite request → 'could'."},
+  {q:"_____ I borrow your pen for a moment? (Formal permission)", opts:["Can","May","Should","Must"], ans:1, hint:"Formal permission → 'may'."},
+  {q:"_____ you mind turning down the music? (Very polite request)", opts:["Could","May","Would","Must"], ans:2, hint:"'Would you mind + verb-ing' = very polite request."},
+  {q:"Which sentence is MOST POLITE?", opts:["Can I use your phone?","Could I use your phone?","May I use your phone?","Should I use your phone?"], ans:2, hint:"May > Could > Can — May is most formal/polite."},
+  {q:"'Could you help me?' — Correct POSITIVE RESPONSE:", opts:["Yes, I could.","Of course, I'd be happy to help!","No, not at all.","Yes, you could."], ans:1, hint:"'Of course' or 'Sure, no problem' are natural positive responses."},
+  {q:"'Would you mind closing the window?' — Correct POSITIVE RESPONSE:", opts:["Yes, I would.","No, not at all.","Of course not, I would.","Yes, I mind."], ans:1, hint:"'Would you mind...?' is answered with 'No, not at all' when agreeing."},
+  {q:"Adding 'please' to a request _____ it.", opts:["weakens","makes it more polite","makes it a question","makes it negative"], ans:1, hint:"'Please' + modal = extra politeness."},
+  {q:"Which is LESS POLITE in a formal situation?", opts:["May I borrow your pen?","Could I borrow your pen?","Can I borrow your pen?","Would you mind lending me your pen?"], ans:2, hint:"'Can' is the least formal; avoid it in professional settings."},
+  {q:"_____ you like to join us for dinner? (Polite invitation)", opts:["Could","May","Would","Can"], ans:2, hint:"'Would you like + noun' = polite invitation."},
+  {q:"'May I ask you a question?' — Correct NEGATIVE RESPONSE:", opts:["No, you may not. I'm busy.","No, you can't.","No, you mustn't.","No, you shouldn't."], ans:0, hint:"May question → polite negative: 'I'm sorry, you may not / I'm afraid not right now.'"},
+  {q:"Which sentence CORRECTLY uses 'would' for a request?", opts:["Would you help me? (incomplete)","Would you mind helping me?","Would I help you?","Would she mind to help me?"], ans:1, hint:"'Would you mind + verb-ing' is the correct structure."},
+  {q:"Sentence structure for 'May/Could' polite requests:", opts:["May/Could + to + verb + subject","Subject + May/Could + base verb","May/Could + subject + base verb","Subject + base verb + May/Could"], ans:2, hint:"May/Could + subject + base verb: 'May I leave?' / 'Could you help?'"}
+],
+
+mastery: [
+  {q:"'I _____ swim when I was five.' — Which modal fits (past ability)?", opts:["can","must","could","should"], ans:2, hint:"Past ability → 'could'."},
+  {q:"'It _____ rain tomorrow.' — Which modal shows possibility (not certain)?", opts:["must","will","should","might"], ans:3, hint:"Uncertainty about the future → 'might' or 'may'."},
+  {q:"'You _____ wear a seatbelt.' — This expresses a law. Which modal fits?", opts:["should","might","must","could"], ans:2, hint:"A law = strong obligation → 'must'."},
+  {q:"'_____ I leave early?' — This is a formal permission request. Which modal?", opts:["Can","Should","Must","May"], ans:3, hint:"Formal permission → 'May'."},
+  {q:"'You _____ study or you'll fail!' — This is a strong warning. Which modal?", opts:["should","had better","ought to","might"], ans:1, hint:"Warning with consequence → 'had better'."},
+  {q:"'She _____ be tired — she's been up all night.' — Deduction. Which modal?", opts:["might","should","must","can't"], ans:2, hint:"Strong certainty based on evidence → 'must'."},
+  {q:"'_____ you mind helping me?' — Polite request. Which modal?", opts:["Can","Should","Would","Must"], ans:2, hint:"'Would you mind + verb-ing' = very polite request."},
+  {q:"'You _____ smoke here.' — This means it is FORBIDDEN.", opts:["may not","should not","could not","must not"], ans:3, hint:"Prohibition → 'must not'."},
+  {q:"'He _____ be at home — I just saw him at the café.' — What fits?", opts:["must","might","should","can't"], ans:3, hint:"Strong certainty it's NOT true → 'can't'."},
+  {q:"'We _____ help those in need.' — This expresses moral duty.", opts:["should","ought to","had better","must"], ans:1, hint:"Moral obligation → 'ought to'."},
+  {q:"'I don't _____ go if it's not required.' — Not necessary.", opts:["must","need to","have to","should"], ans:2, hint:"Not necessary (no obligation) → 'don't have to'."},
+  {q:"'She _____ speak French — she lived in Paris for 10 years.' — Present ability.", opts:["could","can","must","might"], ans:1, hint:"Present ability → 'can'."},
+  {q:"Which is MOST POLITE for asking to use someone's phone?", opts:["Can I use your phone?","Could I use your phone?","May I use your phone?","Should I use your phone?"], ans:2, hint:"May > Could > Can in formality."},
+  {q:"'You _____ not touch the wire; it's dangerous!' — Which is BEST?", opts:["should","might","must","could"], ans:2, hint:"Strong prohibition / danger warning → 'must not'."},
+  {q:"'There _____ be another reason the train is late.' — Theoretical possibility.", opts:["must","should","can't","could"], ans:3, hint:"Hypothetical or theoretical possibility → 'could'."},
+  {q:"Which sentence expresses ADVICE (not obligation)?", opts:["You must wear a helmet.","You should eat more vegetables.","You must not smoke here.","You have to finish by 5 PM."], ans:1, hint:"'Should' = advice or recommendation, not a rule."},
+  {q:"'Do students have to follow the rules?' — Correct SHORT ANSWER (yes):", opts:["Yes, they must.","Yes, they have.","Yes, they do.","Yes, they should."], ans:2, hint:"'Have to' questions → do/does short answers: Yes, they do."},
+  {q:"Which modal is used for a PAST ABILITY question?", opts:["Can you swim?","Could you swim when you were young?","May you swim?","Should you swim?"], ans:1, hint:"Past ability question → 'Could you + base verb + past time?'"},
+  {q:"'The keys _____ be in your bag — you just used them.' — Near certain.", opts:["might","can't","must","could"], ans:2, hint:"Near certainty based on evidence → 'must'."},
+  {q:"'She _____ not come to the meeting — she's feeling sick.' — Low probability she won't come.", opts:["must","will","might","can"], ans:2, hint:"Low probability → 'might not'."},
+  {q:"Which correctly uses 'need to'?", opts:["I need to buy groceries.","I need buy groceries.","I needs to buy groceries.","I needing to buy groceries."], ans:0, hint:"Need to + base verb. (I need to / She needs to)"},
+  {q:"'_____ you like to join us for dinner?' — Polite invitation.", opts:["Could","May","Would","Should"], ans:2, hint:"'Would you like + noun' = polite invitation."},
+  {q:"Which expresses CERTAINTY that something is TRUE (deduction)?", opts:["She might be home.","She should be home.","She must be home.","She could be home."], ans:2, hint:"'Must' = almost 100% certain it's true, based on evidence."},
+  {q:"'I _____ finish my homework because the teacher said so.' — External obligation.", opts:["must","need to","have to","should"], ans:2, hint:"Someone else's rule = external obligation → 'have to'."},
+  {q:"Which sentence correctly expresses PROHIBITION?", opts:["You must not use your phone in the exam.","You should not use your phone in the exam.","You need not use your phone in the exam.","You might not use your phone in the exam."], ans:0, hint:"Prohibition = 'must not'. The others are advice or just negative possibility."}
+]
+
+};
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentSection='', questions=[], qIndex=0, points=0, correct=0, wrong=0;
+let hintUsed=false, answered=false;
+
+const sectionTitles={
+  ch1:'📘 Ch 1: Ability (Can/Could)',
+  ch2:'📙 Ch 2: Possibility (May/Might/Could)',
+  ch3:'📕 Ch 3: Necessity (Must/Have to/Need to)',
+  ch4:'📗 Ch 4: Permission & Prohibition',
+  ch5:'📒 Ch 5: Advice (Should/Ought to/Had better)',
+  ch6:'📔 Ch 6: Deduction (Must/Can\'t)',
+  ch7:'📓 Ch 7: Politeness (Could/Would/May)',
+  mastery:'🏆 Mastery Test'
+};
+
+function getSrc(){return new URLSearchParams(window.location.search).get('src')||'';}
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function shuffleAll(qs){
+  return shuffle(qs).map(q=>{
+    const paired=q.opts.map((o,i)=>({text:o,isAns:i===q.ans}));
+    const sp=shuffle(paired);
+    return {...q, opts:sp.map(p=>p.text), ans:sp.findIndex(p=>p.isAns)};
+  });
+}
+
+function show(id){
+  ['menuScreen','quizScreen','endScreen'].forEach(s=>{
+    const el=document.getElementById(s);
+    el.style.display='none';
+  });
+  document.getElementById(id).style.display='block';
+}
+
+function goMenu(){show('menuScreen');}
+
+function startQuiz(section){
+  currentSection=section;
+  const pool=allQuestions[section];
+  const count=Math.min(15,pool.length);
+  questions=shuffleAll(pool).slice(0,count);
+  qIndex=0;points=0;correct=0;wrong=0;
+  document.getElementById('quizTitle').textContent=sectionTitles[section];
+  updateStats();
+  show('quizScreen');
+  renderQuestion();
+}
+
+function restartQuiz(){startQuiz(currentSection);}
+
+function renderQuestion(){
+  hintUsed=false;answered=false;
+  const q=questions[qIndex];
+  document.getElementById('qCounter').textContent=`Question ${qIndex+1} of ${questions.length}`;
+  document.getElementById('progressBar').style.width=`${(qIndex/questions.length)*100}%`;
+  document.getElementById('questionText').textContent=q.q;
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('hintText').style.display='none';
+  document.getElementById('hintText').textContent='';
+  document.getElementById('hintBtn').disabled=false;
+  document.getElementById('nextBtn').style.display='none';
+  const div=document.getElementById('optionsDiv');
+  div.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn';
+    btn.textContent=opt;
+    btn.onclick=()=>selectAnswer(i);
+    div.appendChild(btn);
+  });
+}
+
+function selectAnswer(i){
+  if(answered)return;
+  answered=true;
+  const q=questions[qIndex];
+  const btns=document.querySelectorAll('.opt-btn');
+  btns.forEach(b=>b.disabled=true);
+  document.getElementById('hintBtn').disabled=true;
+  if(i===q.ans){
+    btns[i].classList.add('correct');
+    const earned=hintUsed?5:10;
+    points+=earned;correct++;
+    document.getElementById('feedback').textContent=hintUsed?`✅ Correct! +5 points (hint used)`:`✅ Correct! +10 points`;
+    document.getElementById('feedback').className='feedback correct';
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.ans].classList.add('correct');
+    wrong++;
+    document.getElementById('feedback').textContent=`❌ Not quite! Answer: ${q.opts[q.ans]}`;
+    document.getElementById('feedback').className='feedback wrong';
+  }
+  updateStats();
+  document.getElementById('nextBtn').style.display='block';
+}
+
+function showHint(){
+  const q=questions[qIndex];
+  hintUsed=true;
+  document.getElementById('hintBtn').disabled=true;
+  document.getElementById('hintText').textContent=`💡 ${q.hint}`;
+  document.getElementById('hintText').style.display='block';
+}
+
+function nextQuestion(){
+  qIndex++;
+  if(qIndex>=questions.length){showEnd();}
+  else{renderQuestion();}
+}
+
+function updateStats(){
+  document.getElementById('statPoints').textContent=points;
+  document.getElementById('statCorrect').textContent=correct;
+  document.getElementById('statWrong').textContent=wrong;
+  const total=correct+wrong;
+  const pct=total>0?Math.round((correct/total)*100):0;
+  document.getElementById('statScore').textContent=pct+'%';
+}
+
+function showEnd(){
+  const total=correct+wrong;
+  const pct=total>0?Math.round((correct/total)*100):0;
+  document.getElementById('endPoints').textContent=points;
+  document.getElementById('endCorrect').textContent=correct;
+  document.getElementById('endWrong').textContent=wrong;
+  document.getElementById('endScore').textContent=pct+'%';
+  const starsRow=document.getElementById('starsRow');
+  starsRow.innerHTML='';
+
+  if(pct>=70){
+    document.getElementById('endIcon').textContent=pct===100?'🏆':'🎉';
+    let title='';
+    if(pct===100)title='🏆 Spectacular!';
+    else if(pct>=85)title='⭐ Excellent!';
+    else title='🌟 Great Job!';
+    document.getElementById('endTitle').textContent=title;
+    document.getElementById('endSubtitle').textContent=`You scored ${pct}% — well done!`;
+    for(let s=0;s<5;s++){
+      const star=document.createElement('div');
+      star.className='star';star.textContent='⭐';
+      starsRow.appendChild(star);
+      setTimeout(()=>star.classList.add('pop'),150+s*180);
+    }
+    // Review box — mastery section only
+    const src=getSrc();
+    const reviewBox=document.getElementById('reviewBox');
+    if(currentSection==='mastery'&&src){
+      reviewBox.style.display='block';
+      let html='<h3>💬 Enjoying the book? Leave a review!</h3><div class="review-links">';
+      if(src==='etsy'){
+        html+='<a class="review-link etsy-link" href="https://www.etsy.com/your/purchases" target="_blank">⭐ Review on Etsy</a>';
+      } else if(src==='amazon'){
+        html+='<a class="review-link amazon-link" href="https://www.amazon.com/review/create-review?asin=B0DYZH1RRY" target="_blank">📦 Review Paperback on Amazon</a>';
+        html+='<a class="review-link amazon-link" href="https://www.amazon.com/review/create-review?asin=B0F265JR13" target="_blank">📗 Review Hardcover on Amazon</a>';
+      }
+      html+='</div>';
+      reviewBox.innerHTML=html;
+    } else {
+      reviewBox.style.display='none';
+    }
+  } else {
+    document.getElementById('endIcon').textContent='💪';
+    document.getElementById('endTitle').textContent='Keep Practicing!';
+    document.getElementById('endSubtitle').textContent=`You scored ${pct}%. You can do it — try again!`;
+    document.getElementById('reviewBox').style.display='none';
+  }
+  show('endScreen');
+  document.getElementById('endScreen').style.display='block';
+}
+</script>
+</body>
+</html>
